@@ -1,0 +1,14 @@
+formatter.name: pretty
+suites:
+    domain_suite:
+        namespace: RayRutjes\DomainFoundation
+        psr4_prefix: RayRutjes\DomainFoundation
+extensions:
+    - PhpSpec\Extension\CodeCoverageExtension
+code_coverage:
+  format:
+    - html
+    - clover
+  output:
+    html: coverage
+    clover: coverage.xml

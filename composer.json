@@ -1,0 +1,33 @@
+{
+    "name": "rayrutjes/domain-foundation",
+    "description": "Php framework which allows you to roll out an event sourced domain layer with ease.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Raymond RUTJES",
+            "email": "raymond.rutjes@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "RayRutjes\\DomainFoundation\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "RayRutjes\\DomainFoundation\\Stub\\": "stubs/"
+        }
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "require": {
+        "php": ">=5.5",
+        "ramsey/uuid": "^2.8",
+        "monolog/monolog": "^1.13"
+    },
+    "require-dev": {
+        "phpspec/phpspec": "~2.0",
+        "henrikbjorn/phpspec-code-coverage": "~1.0"
+    }
+}

@@ -1,0 +1,5 @@
+formatter.name: pretty
+suites:
+    domain_suite:
+        namespace: RayRutjes\DomainFoundation
+        psr4_prefix: RayRutjes\DomainFoundation
