@@ -2,7 +2,7 @@
 
 namespace RayRutjes\DomainFoundation\Command\Callback;
 
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use RayRutjes\DomainFoundation\Command\Command;
 
 class LogCommandCallback implements CommandCallback
@@ -18,10 +18,10 @@ class LogCommandCallback implements CommandCallback
     private $logger;
 
     /**
-     * @param Command $command
-     * @param Logger  $logger
+     * @param Command         $command
+     * @param LoggerInterface $logger
      */
-    public function __construct(Command $command, Logger $logger)
+    public function __construct(Command $command, LoggerInterface $logger)
     {
         $this->command = $command;
         $this->logger = $logger;
@@ -32,7 +32,7 @@ class LogCommandCallback implements CommandCallback
      */
     public function onSuccess($result = null)
     {
-        $this->logger->addInfo('Command executed successfully', ['commandName' => $this->command->commandName()]);
+        $this->logger->info('Command executed successfully', ['commandName' => $this->command->commandName()]);
     }
 
     /**
@@ -40,6 +40,6 @@ class LogCommandCallback implements CommandCallback
      */
     public function onFailure(\Exception $cause)
     {
-        $this->logger->addWarning('Command execution failed', ['commandName' => $this->command->commandName(), 'cause' => $cause]);
+        $this->logger->warning('Command execution failed', ['commandName' => $this->command->commandName(), 'cause' => $cause]);
     }
 }

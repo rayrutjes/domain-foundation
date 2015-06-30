@@ -24,7 +24,7 @@
     "require": {
         "php": ">=5.5",
         "ramsey/uuid": "^2.8",
-        "monolog/monolog": "^1.13"
+        "psr/log": "^1.0"
     },
     "require-dev": {
         "phpspec/phpspec": "~2.0",

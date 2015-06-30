@@ -2,14 +2,14 @@
 
 namespace spec\RayRutjes\DomainFoundation\Command\Callback;
 
-use Monolog\Logger;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Psr\Log\LoggerInterface;
 use RayRutjes\DomainFoundation\Command\Command;
 
 class LogCommandCallbackSpec extends ObjectBehavior
 {
-    public function let(Command $command, Logger $logger)
+    public function let(Command $command, LoggerInterface $logger)
     {
         $this->beConstructedWith($command, $logger);
     }
@@ -22,13 +22,13 @@ class LogCommandCallbackSpec extends ObjectBehavior
 
     public function it_logs_an_info_message_on_success($logger)
     {
-        $logger->addInfo(Argument::cetera())->shouldBeCalled();
+        $logger->info(Argument::cetera())->shouldBeCalled();
         $this->onSuccess();
     }
 
     public function it_logs_a_warning_message_on_failure($logger, \Exception $cause)
     {
-        $logger->addWarning(Argument::cetera())->shouldBeCalled();
+        $logger->warning(Argument::cetera())->shouldBeCalled();
         $this->onFailure($cause);
     }
 }
