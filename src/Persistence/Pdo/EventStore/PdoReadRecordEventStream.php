@@ -108,7 +108,7 @@ class PdoReadRecordEventStream implements EventStream
             $this->contractFactory->createFromClassName($record['event_metadata_type'])
         );
 
-        $sequenceNumber = $record['aggregate_version'];
+        $sequenceNumber = (int) $record['aggregate_version'];
 //        $commitIdentifier = new CommitIdentifier($record['commit_id']);
 //        $committedAt = new \DateTime($record['committed_at']);
 

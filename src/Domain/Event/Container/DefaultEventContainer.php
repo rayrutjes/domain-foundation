@@ -109,7 +109,7 @@ class DefaultEventContainer implements \Countable, EventContainer
      */
     public function initializeSequenceNumber($lastKnownSequenceNumber)
     {
-        if (false === is_int($lastKnownSequenceNumber) || $lastKnownSequenceNumber < 1) {
+        if (false === is_int($lastKnownSequenceNumber) || $lastKnownSequenceNumber < 0) {
             throw new \InvalidArgumentException('Sequence number should be a positive integer.');
         }
 

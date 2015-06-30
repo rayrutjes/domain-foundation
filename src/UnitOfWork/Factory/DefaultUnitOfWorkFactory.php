@@ -8,6 +8,7 @@ use RayRutjes\DomainFoundation\UnitOfWork\EventRegistrationCallback\Factory\Defa
 use RayRutjes\DomainFoundation\UnitOfWork\Listener\UnitOfWorkListenerCollection;
 use RayRutjes\DomainFoundation\UnitOfWork\StagingEventContainer\Factory\DefaultStagingEventContainerFactory;
 use RayRutjes\DomainFoundation\UnitOfWork\TransactionManager;
+use RayRutjes\DomainFoundation\UnitOfWork\UnitOfWork;
 
 class DefaultUnitOfWorkFactory implements UnitOfWorkFactory
 {
