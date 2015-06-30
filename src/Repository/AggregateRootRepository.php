@@ -44,11 +44,11 @@ class AggregateRootRepository implements Repository
     private $unitOfWork;
 
     /**
-     * @param UnitOfWork                   $unitOfWork
-     * @param Contract                     $aggregateRootType
-     * @param EventStore                   $eventStore
-     * @param EventBus                     $eventBus
-     * @param AggregateRootFactory         $aggregateRootFactory
+     * @param UnitOfWork           $unitOfWork
+     * @param Contract             $aggregateRootType
+     * @param EventStore           $eventStore
+     * @param EventBus             $eventBus
+     * @param AggregateRootFactory $aggregateRootFactory
      */
     public function __construct(
         UnitOfWork $unitOfWork,
@@ -146,7 +146,7 @@ class AggregateRootRepository implements Repository
      */
     private function createSaveAggregateCallback()
     {
-        if(null === $this->saveAggregateCallbackFactory) {
+        if (null === $this->saveAggregateCallbackFactory) {
             throw new \LogicException('No save aggregate callback factory has been set.');
         }
 

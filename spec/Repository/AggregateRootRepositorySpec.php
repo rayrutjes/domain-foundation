@@ -33,9 +33,9 @@ class AggregateRootRepositorySpec extends ObjectBehavior
             $aggregateRootType,
             $eventStore,
             $eventBus,
-            $aggregateRootFactory,
-            $saveAggregateCallbackFactory
+            $aggregateRootFactory
         );
+
         $aggregateRootType->className()->willReturn('RayRutjes\DomainFoundation\Domain\AggregateRoot\AggregateRoot');
         $saveAggregateCallbackFactory->create()->willReturn($saveAggregateCallback);
     }
@@ -53,6 +53,8 @@ class AggregateRootRepositorySpec extends ObjectBehavior
         SaveAggregateCallback $saveAggregateCallback,
         UnitOfWork $unitOfWork
     ) {
+        $this->setSaveAggregateCallbackFactory($saveAggregateCallbackFactory);
+
         $aggregateRoot->lastCommittedEventSequenceNumber()->willReturn(0);
 
         $saveAggregateCallbackFactory->create()->willReturn($saveAggregateCallback);
@@ -82,13 +84,34 @@ class AggregateRootRepositorySpec extends ObjectBehavior
         AggregateRoot $aggregateRoot,
         $unitOfWork,
         $eventBus,
+        $saveAggregateCallbackFactory,
+        $saveAggregateCallback
+    ) {
+        $this->setSaveAggregateCallbackFactory($saveAggregateCallbackFactory);
+
+        $eventStore->read($aggregateRootType, $identifier)->willReturn($eventStream);
+        $aggregateRootFactory->loadFromHistory($aggregateRootType, $eventStream)->willReturn($aggregateRoot);
+        $unitOfWork->registerAggregate($aggregateRoot, $eventBus, $saveAggregateCallback)->willReturn($aggregateRoot);
+
+        $this->load($identifier)->shouldReturn($aggregateRoot);
+    }
+
+    public function it_should_throw_an_exception_if_no_save_aggregate_callback_factory_has_been_set(
+        AggregateRootIdentifier $identifier,
+        $eventStore,
+        $aggregateRootType,
+        $aggregateRootFactory,
+        EventStream $eventStream,
+        AggregateRoot $aggregateRoot,
+        $unitOfWork,
+        $eventBus,
         $saveAggregateCallback
     ) {
         $eventStore->read($aggregateRootType, $identifier)->willReturn($eventStream);
         $aggregateRootFactory->loadFromHistory($aggregateRootType, $eventStream)->willReturn($aggregateRoot);
         $unitOfWork->registerAggregate($aggregateRoot, $eventBus, $saveAggregateCallback)->willReturn($aggregateRoot);
 
-        $this->load($identifier)->shouldReturn($aggregateRoot);
+        $this->shouldThrow()->duringLoad($identifier);
     }
 
     public function it_should_throw_an_exception_if_the_loaded_aggregate_has_no_history(
@@ -109,8 +132,11 @@ class AggregateRootRepositorySpec extends ObjectBehavior
         $aggregateRootType,
         $aggregateRootFactory,
         EventStream $eventStream,
-        AggregateRoot $aggregateRoot
+        AggregateRoot $aggregateRoot,
+        $saveAggregateCallbackFactory
     ) {
+        $this->setSaveAggregateCallbackFactory($saveAggregateCallbackFactory);
+
         $eventStore->read($aggregateRootType, $identifier)->willReturn($eventStream);
         $aggregateRootFactory->loadFromHistory($aggregateRootType, $eventStream)->willReturn($aggregateRoot);
 
