@@ -97,7 +97,6 @@ class DefaultEventContainerSpec extends ObjectBehavior
         $this->lastCommittedSequenceNumber()->shouldReturn(10);
 
         $this->shouldThrow(new \InvalidArgumentException('Sequence number should be a positive integer.'))->during('initializeSequenceNumber', ['10']);
-        $this->shouldThrow(new \InvalidArgumentException('Sequence number should be a positive integer.'))->during('initializeSequenceNumber', [0]);
         $this->shouldThrow(new \InvalidArgumentException('Sequence number should be a positive integer.'))->during('initializeSequenceNumber', [-9]);
         $this->shouldThrow(new \InvalidArgumentException('Sequence number should be a positive integer.'))->during('initializeSequenceNumber', [null]);
 
