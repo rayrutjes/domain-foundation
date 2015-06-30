@@ -5,7 +5,7 @@ namespace RayRutjes\DomainFoundation\Command\Bus;
 use RayRutjes\DomainFoundation\Command\Callback\CommandCallback;
 use RayRutjes\DomainFoundation\Command\Command;
 use RayRutjes\DomainFoundation\Command\Handler\Registry\CommandHandlerRegistry;
-use RayRutjes\DomainFoundation\UnitOfWork\Factory\UnitOfWorkFactory;
+use RayRutjes\DomainFoundation\UnitOfWork\UnitOfWork;
 
 final class SimpleCommandBus implements CommandBus
 {
@@ -15,18 +15,18 @@ final class SimpleCommandBus implements CommandBus
     private $handlerRegistry;
 
     /**
-     * @var UnitOfWorkFactory
+     * @var UnitOfWork
      */
-    private $unitOfWorkFactory;
+    private $unitOfWork;
 
     /**
      * @param CommandHandlerRegistry $handlerRegistry
-     * @param UnitOfWorkFactory      $unitOfWorkFactory
+     * @param UnitOfWork             $unitOfWork
      */
-    public function __construct(CommandHandlerRegistry $handlerRegistry, UnitOfWorkFactory $unitOfWorkFactory)
+    public function __construct(CommandHandlerRegistry $handlerRegistry, UnitOfWork $unitOfWork)
     {
         $this->handlerRegistry = $handlerRegistry;
-        $this->unitOfWorkFactory = $unitOfWorkFactory;
+        $this->unitOfWork = $unitOfWork;
     }
 
     /**
@@ -39,8 +39,7 @@ final class SimpleCommandBus implements CommandBus
     {
         $handler = $this->handlerRegistry->findCommandHandlerFor($command);
 
-        $unitOfWork = $this->unitOfWorkFactory->createUnitOfWork();
-        $unitOfWork->start();
+        $this->unitOfWork->start();
 
         try {
             $result = $handler->handle($command);
@@ -48,7 +47,7 @@ final class SimpleCommandBus implements CommandBus
                 $callback->onSuccess($result);
             }
         } catch (\Exception $exception) {
-            $unitOfWork->rollback($exception);
+            $this->unitOfWork->rollback($exception);
             if (null !== $callback) {
                 $callback->onFailure($exception);
             }
@@ -57,6 +56,6 @@ final class SimpleCommandBus implements CommandBus
             throw $exception;
         }
 
-        $unitOfWork->commit();
+        $this->unitOfWork->commit();
     }
 }

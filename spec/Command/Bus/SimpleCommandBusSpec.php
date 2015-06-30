@@ -8,15 +8,13 @@ use RayRutjes\DomainFoundation\Command\Callback\CommandCallback;
 use RayRutjes\DomainFoundation\Command\Command;
 use RayRutjes\DomainFoundation\Command\Handler\CommandHandler;
 use RayRutjes\DomainFoundation\Command\Handler\Registry\CommandHandlerRegistry;
-use RayRutjes\DomainFoundation\UnitOfWork\Factory\UnitOfWorkFactory;
 use RayRutjes\DomainFoundation\UnitOfWork\UnitOfWork;
 
 class SimpleCommandBusSpec extends ObjectBehavior
 {
-    public function let(CommandHandlerRegistry $handlerRegistry, UnitOfWorkFactory $unitOfWorkFactory, UnitOfWork $unitOfWork)
+    public function let(CommandHandlerRegistry $handlerRegistry, UnitOfWork $unitOfWork)
     {
-        $this->beConstructedWith($handlerRegistry, $unitOfWorkFactory);
-        $unitOfWorkFactory->createUnitOfWork()->willReturn($unitOfWork);
+        $this->beConstructedWith($handlerRegistry, $unitOfWork);
     }
 
     public function it_is_initializable()
