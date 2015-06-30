@@ -49,22 +49,19 @@ class AggregateRootRepository implements Repository
      * @param EventStore                   $eventStore
      * @param EventBus                     $eventBus
      * @param AggregateRootFactory         $aggregateRootFactory
-     * @param SaveAggregateCallbackFactory $saveAggregateCallbackFactory
      */
     public function __construct(
         UnitOfWork $unitOfWork,
         Contract $aggregateRootType,
         EventStore $eventStore,
         EventBus $eventBus,
-        AggregateRootFactory $aggregateRootFactory,
-        SaveAggregateCallbackFactory $saveAggregateCallbackFactory
+        AggregateRootFactory $aggregateRootFactory
     ) {
         $this->unitOfWork = $unitOfWork;
         $this->aggregateRootType = $aggregateRootType;
         $this->eventStore = $eventStore;
         $this->eventBus = $eventBus;
         $this->aggregateRootFactory = $aggregateRootFactory;
-        $this->saveAggregateCallbackFactory = $saveAggregateCallbackFactory;
     }
 
     /**
@@ -82,7 +79,7 @@ class AggregateRootRepository implements Repository
         $this->unitOfWork->registerAggregate(
             $aggregateRoot,
             $this->eventBus,
-            $this->saveAggregateCallbackFactory->create()
+            $this->createSaveAggregateCallback()
         );
     }
 
@@ -113,7 +110,7 @@ class AggregateRootRepository implements Repository
         return $this->unitOfWork->registerAggregate(
             $aggregateRoot,
             $this->eventBus,
-            $this->saveAggregateCallbackFactory->create()
+            $this->createSaveAggregateCallback()
         );
     }
 
@@ -142,5 +139,25 @@ class AggregateRootRepository implements Repository
         if (!$aggregateRoot instanceof $supportedClassName) {
             throw new \InvalidArgumentException('Unsupported aggregate type.');
         }
+    }
+
+    /**
+     * @return \RayRutjes\DomainFoundation\UnitOfWork\SaveAggregateCallback\SaveAggregateCallback
+     */
+    private function createSaveAggregateCallback()
+    {
+        if(null === $this->saveAggregateCallbackFactory) {
+            throw new \LogicException('No save aggregate callback factory has been set.');
+        }
+
+        return $this->saveAggregateCallbackFactory->create();
+    }
+
+    /**
+     * @param SaveAggregateCallbackFactory $saveAggregateCallbackFactory
+     */
+    public function setSaveAggregateCallbackFactory(SaveAggregateCallbackFactory $saveAggregateCallbackFactory)
+    {
+        $this->saveAggregateCallbackFactory = $saveAggregateCallbackFactory;
     }
 }
