@@ -37,6 +37,9 @@ Feel free to make pull requests, and open issues either to ask questions, sugges
 ### Code style
 
 Run the [PHP Coding Standards Fixer](http://cs.sensiolabs.org/) before submitting your code.
+```bash
+$ php-cs-fixer fix
+```
 
 ### Run the tests
 
