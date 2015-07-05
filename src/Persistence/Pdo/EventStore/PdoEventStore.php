@@ -3,18 +3,12 @@
 namespace RayRutjes\DomainFoundation\Persistence\Pdo\EventStore;
 
 use RayRutjes\DomainFoundation\Contract\Contract;
-use RayRutjes\DomainFoundation\Contract\ContractFactory;
-use RayRutjes\DomainFoundation\Contract\ConventionalContractFactory;
 use RayRutjes\DomainFoundation\Domain\AggregateRoot\AggregateRootIdentifier;
-use RayRutjes\DomainFoundation\Domain\Event\Factory\EventFactory;
-use RayRutjes\DomainFoundation\Domain\Event\Factory\GenericEventFactory;
 use RayRutjes\DomainFoundation\Domain\Event\Serializer\CompositeEventSerializer;
 use RayRutjes\DomainFoundation\Domain\Event\Serializer\EventSerializer;
 use RayRutjes\DomainFoundation\Domain\Event\Stream\EventStream;
 use RayRutjes\DomainFoundation\EventStore\CommitIdentifier;
 use RayRutjes\DomainFoundation\EventStore\EventStore;
-use RayRutjes\DomainFoundation\Message\Identifier\Factory\MessageIdentifierFactory;
-use RayRutjes\DomainFoundation\Message\Identifier\Factory\UuidMessageIdentifierFactory;
 use RayRutjes\DomainFoundation\Persistence\Pdo\EventStore\Query\CreateQuery;
 use RayRutjes\DomainFoundation\Persistence\Pdo\EventStore\Query\InsertQuery;
 use RayRutjes\DomainFoundation\Persistence\Pdo\EventStore\Query\PdoEventStoreQuery;
@@ -39,11 +33,6 @@ final class PdoEventStore implements EventStore
     private $eventSerializer;
 
     /**
-     * @var ContractFactory
-     */
-    private $contractFactory;
-
-    /**
      * @var PdoEventStoreQuery
      */
     private $insertQuery;
@@ -59,55 +48,28 @@ final class PdoEventStore implements EventStore
     private $createQuery;
 
     /**
-     * @var EventFactory
+     * @param \PDO            $pdo
+     * @param string          $tableName
+     * @param EventSerializer $eventSerializer
      */
-    private $eventFactory;
-
-    /**
-     * @var MessageIdentifierFactory
-     */
-    private $messageIdentifierFactory;
-
-    /**
-     * @param \PDO                     $pdo
-     * @param string                   $tableName
-     * @param EventSerializer          $eventSerializer
-     * @param ContractFactory          $contractFactory
-     * @param PdoEventStoreQuery       $insertQuery
-     * @param PdoEventStoreQuery       $selectQuery
-     * @param PdoEventStoreQuery       $createQuery
-     * @param EventFactory             $eventFactory
-     * @param MessageIdentifierFactory $messageIdentifierFactory
-     */
-    public function __construct(
-        \PDO $pdo,
-        $tableName = 'events',
-        EventSerializer $eventSerializer = null,
-        ContractFactory $contractFactory = null,
-        PdoEventStoreQuery $insertQuery = null,
-        PdoEventStoreQuery $selectQuery = null,
-        PdoEventStoreQuery $createQuery = null,
-        EventFactory $eventFactory = null,
-        MessageIdentifierFactory $messageIdentifierFactory = null
-    ) {
+    public function __construct(\PDO $pdo, $tableName = 'events', EventSerializer $eventSerializer = null)
+    {
         $this->pdo = $pdo;
         $this->tableName = $tableName;
         $this->eventSerializer = null === $eventSerializer ? new CompositeEventSerializer(new JsonSerializer()) : $eventSerializer;
-        $this->contractFactory = null === $contractFactory ? new ConventionalContractFactory() : $contractFactory;
-        $this->insertQuery = null === $insertQuery ? new InsertQuery($pdo, $tableName) : $insertQuery;
-        $this->selectQuery = null === $selectQuery ? new SelectQuery($pdo, $tableName) : $selectQuery;
-        $this->createQuery = null === $createQuery ? new CreateQuery($pdo, $tableName) : $createQuery;
-        $this->eventFactory = null === $eventFactory ? new GenericEventFactory() : $eventFactory;
-        $this->messageIdentifierFactory = null === $messageIdentifierFactory ? new UuidMessageIdentifierFactory() : $messageIdentifierFactory;
+
+        $this->insertQuery = new InsertQuery($pdo, $tableName);
+        $this->selectQuery = new SelectQuery($pdo, $tableName);
+        $this->createQuery = new CreateQuery($pdo, $tableName);
     }
 
     /**
-     * @param Contract    $aggregateType
+     * @param Contract    $aggregateRootType
      * @param EventStream $eventStream
      *
      * @throws \Exception
      */
-    public function append(Contract $aggregateType, EventStream $eventStream)
+    public function append(Contract $aggregateRootType, EventStream $eventStream)
     {
         $statement = $this->insertQuery->prepare();
 
@@ -118,7 +80,7 @@ final class PdoEventStore implements EventStore
             $event = $eventStream->next();
 
             $statement->bindValue(':aggregate_id', $event->aggregateRootIdentifier()->toString());
-            $statement->bindValue(':aggregate_type', $aggregateType->toString());
+            $statement->bindValue(':aggregate_type', $aggregateRootType->toString());
             $statement->bindValue(':aggregate_version', $event->sequenceNumber());
             $statement->bindValue(':event_id', $event->identifier()->toString());
             $statement->bindValue(':event_payload', $this->eventSerializer->serializePayload($event));
@@ -134,17 +96,17 @@ final class PdoEventStore implements EventStore
     }
 
     /**
-     * @param Contract                $aggregateType
+     * @param Contract                $aggregateRootType
      * @param AggregateRootIdentifier $aggregateRootIdentifier
      *
      * @return EventStream
      */
-    public function read(Contract $aggregateType, AggregateRootIdentifier $aggregateRootIdentifier)
+    public function read(Contract $aggregateRootType, AggregateRootIdentifier $aggregateRootIdentifier)
     {
         $statement = $this->selectQuery->prepare();
 
         $statement->bindValue(':aggregate_id', $aggregateRootIdentifier->toString());
-        $statement->bindValue(':aggregate_type', $aggregateType->toString());
+        $statement->bindValue(':aggregate_type', $aggregateRootType->toString());
 
         $statement->execute();
 
@@ -154,10 +116,7 @@ final class PdoEventStore implements EventStore
         return new PdoReadRecordEventStream(
             $aggregateRootIdentifier,
             $records,
-            $this->eventSerializer,
-            $this->contractFactory,
-            $this->eventFactory,
-            $this->messageIdentifierFactory
+            $this->eventSerializer
         );
     }
 

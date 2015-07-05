@@ -3,12 +3,9 @@
 namespace RayRutjes\DomainFoundation\Message;
 
 use RayRutjes\DomainFoundation\Contract\Contract;
-use RayRutjes\DomainFoundation\Contract\ContractFactory;
-use RayRutjes\DomainFoundation\Contract\ConventionalContractFactory;
-use RayRutjes\DomainFoundation\Message\Identifier\MessageIdentifier;
 use RayRutjes\DomainFoundation\Serializer\Serializable;
 
-class GenericMessage implements Message
+final class GenericMessage implements Message
 {
     /**
      * @var MessageIdentifier
@@ -21,27 +18,34 @@ class GenericMessage implements Message
     private $payload;
 
     /**
+     * @var Contract
+     */
+    private $payloadType;
+
+    /**
      * @var Metadata
      */
     private $metadata;
 
     /**
-     * @var ContractFactory
+     * @var Contract
      */
-    private $contractFactory;
+    private $metadataType;
 
     /**
      * @param MessageIdentifier $identifier
      * @param Serializable      $payload
      * @param Metadata          $metadata
-     * @param ContractFactory   $contractFactory
      */
-    public function __construct(MessageIdentifier $identifier, Serializable $payload, Metadata $metadata = null, ContractFactory $contractFactory = null)
+    public function __construct(MessageIdentifier $identifier, Serializable $payload, Metadata $metadata = null)
     {
         $this->identifier = $identifier;
+
         $this->payload = $payload;
+        $this->payloadType = Contract::createFromObject($this->payload);
+
         $this->metadata = null === $metadata ? new Metadata() : $metadata;
-        $this->contractFactory = null === $contractFactory ? new ConventionalContractFactory() : $contractFactory;
+        $this->metadataType = Contract::createFromObject($this->metadata);
     }
 
     /**
@@ -65,7 +69,7 @@ class GenericMessage implements Message
      */
     public function payloadType()
     {
-        return $this->contractFactory->createFromObject($this->payload);
+        return $this->payloadType;
     }
 
     /**
@@ -81,6 +85,6 @@ class GenericMessage implements Message
      */
     public function metadataType()
     {
-        return $this->contractFactory->createFromObject($this->metadata);
+        return $this->metadataType;
     }
 }

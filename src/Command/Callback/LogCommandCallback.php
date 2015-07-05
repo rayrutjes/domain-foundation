@@ -13,7 +13,7 @@ class LogCommandCallback implements CommandCallback
     private $command;
 
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     private $logger;
 

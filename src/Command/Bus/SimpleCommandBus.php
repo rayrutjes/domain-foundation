@@ -52,7 +52,6 @@ final class SimpleCommandBus implements CommandBus
                 $callback->onFailure($exception);
             }
 
-            // Todo: remove this ?
             throw $exception;
         }
 

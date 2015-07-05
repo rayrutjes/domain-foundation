@@ -2,12 +2,17 @@
 
 namespace RayRutjes\DomainFoundation\Domain\AggregateRoot;
 
-use RayRutjes\DomainFoundation\ValueObject\ValueObject;
-
-interface AggregateRootIdentifier extends ValueObject
+interface AggregateRootIdentifier
 {
     /**
      * @return string
      */
     public function toString();
+
+    /**
+     * @param AggregateRootIdentifier $identifier
+     *
+     * @return mixed
+     */
+    public function equals(AggregateRootIdentifier $identifier);
 }

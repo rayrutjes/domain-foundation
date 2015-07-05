@@ -3,7 +3,6 @@
 namespace RayRutjes\DomainFoundation\Message;
 
 use RayRutjes\DomainFoundation\Contract\Contract;
-use RayRutjes\DomainFoundation\Message\Identifier\MessageIdentifier;
 use RayRutjes\DomainFoundation\Serializer\Serializable;
 
 interface Message

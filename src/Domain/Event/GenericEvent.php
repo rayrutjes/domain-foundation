@@ -2,15 +2,20 @@
 
 namespace RayRutjes\DomainFoundation\Domain\Event;
 
-use RayRutjes\DomainFoundation\Contract\ContractFactory;
+use RayRutjes\DomainFoundation\Contract\Contract;
 use RayRutjes\DomainFoundation\Domain\AggregateRoot\AggregateRootIdentifier;
 use RayRutjes\DomainFoundation\Message\GenericMessage;
-use RayRutjes\DomainFoundation\Message\Identifier\MessageIdentifier;
+use RayRutjes\DomainFoundation\Message\MessageIdentifier;
 use RayRutjes\DomainFoundation\Message\Metadata;
 use RayRutjes\DomainFoundation\Serializer\Serializable;
 
-class GenericEvent extends GenericMessage implements Event
+final class GenericEvent implements Event
 {
+    /**
+     * @var GenericMessage
+     */
+    private $message;
+
     /**
      * @var int
      */
@@ -27,20 +32,18 @@ class GenericEvent extends GenericMessage implements Event
      * @param MessageIdentifier       $identifier
      * @param Serializable            $payload
      * @param Metadata                $metadata
-     * @param ContractFactory         $contractFactory
      */
     public function __construct(
         AggregateRootIdentifier $aggregateRootIdentifier,
         $sequenceNumber,
         MessageIdentifier $identifier,
         Serializable $payload,
-        Metadata $metadata = null,
-        ContractFactory $contractFactory = null
+        Metadata $metadata = null
     ) {
-        parent::__construct($identifier, $payload, $metadata, $contractFactory);
+        $this->message = new GenericMessage($identifier, $payload, $metadata);
 
-        if (!is_int($sequenceNumber)) {
-            throw new \InvalidArgumentException('Sequence number should be an integer.');
+        if (!is_int($sequenceNumber) || $sequenceNumber < 1) {
+            throw new \InvalidArgumentException('Sequence number should be an integer greater than zero.');
         }
         $this->sequenceNumber = $sequenceNumber;
         $this->aggregateRootIdentifier = $aggregateRootIdentifier;
@@ -60,5 +63,45 @@ class GenericEvent extends GenericMessage implements Event
     public function sequenceNumber()
     {
         return $this->sequenceNumber;
+    }
+
+    /**
+     * @return MessageIdentifier
+     */
+    public function identifier()
+    {
+        return $this->message->identifier();
+    }
+
+    /**
+     * @return Serializable
+     */
+    public function payload()
+    {
+        return $this->message->payload();
+    }
+
+    /**
+     * @return Contract
+     */
+    public function payloadType()
+    {
+        return $this->message->payloadType();
+    }
+
+    /**
+     * @return Metadata
+     */
+    public function metadata()
+    {
+        return $this->message->metadata();
+    }
+
+    /**
+     * @return Contract
+     */
+    public function metadataType()
+    {
+        return $this->message->metadataType();
     }
 }

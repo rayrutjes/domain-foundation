@@ -2,13 +2,13 @@
 
 namespace RayRutjes\DomainFoundation\Repository\ConflictResolver;
 
-use RayRutjes\DomainFoundation\Domain\Event\EventStream;
+use RayRutjes\DomainFoundation\Domain\Event\Stream\EventStream;
 
 interface ConflictResolver
 {
     /**
-     * @param \RayRutjes\DomainFoundation\Domain\Event\EventStream $appliedEvents
-     * @param EventStream                                          $committedEvents
+     * @param EventStream $appliedEvents
+     * @param EventStream $committedEvents
      */
-    public function resolverConflicts(EventStream $appliedEvents, EventStream $committedEvents);
+    public function resolveConflicts(EventStream $appliedEvents, EventStream $committedEvents);
 }

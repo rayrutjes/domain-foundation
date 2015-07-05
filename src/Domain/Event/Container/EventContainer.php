@@ -7,7 +7,7 @@ use RayRutjes\DomainFoundation\Domain\Event\EventRegistrationCallback;
 use RayRutjes\DomainFoundation\Domain\Event\Stream\EventStream;
 use RayRutjes\DomainFoundation\Serializer\Serializable;
 
-interface EventContainer
+interface EventContainer extends \Countable
 {
     /**
      * @param Serializable $payload
@@ -25,11 +25,6 @@ interface EventContainer
      * @return EventStream
      */
     public function eventStream();
-
-    /**
-     * @param $lastKnownSequenceNumber
-     */
-    public function initializeSequenceNumber($lastKnownSequenceNumber);
 
     /**
      * @return int|null
