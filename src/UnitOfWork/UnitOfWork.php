@@ -6,7 +6,6 @@ use RayRutjes\DomainFoundation\Domain\AggregateRoot\AggregateRoot;
 use RayRutjes\DomainFoundation\Domain\Event\Event;
 use RayRutjes\DomainFoundation\EventBus\EventBus;
 use RayRutjes\DomainFoundation\UnitOfWork\Listener\UnitOfWorkListener;
-use RayRutjes\DomainFoundation\UnitOfWork\SaveAggregateCallback\SaveAggregateCallback;
 
 interface UnitOfWork
 {

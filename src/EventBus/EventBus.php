@@ -2,8 +2,6 @@
 
 namespace RayRutjes\DomainFoundation\EventBus;
 
-use RayRutjes\DomainFoundation\EventBus\Listener\EventListener;
-
 interface EventBus
 {
     /**

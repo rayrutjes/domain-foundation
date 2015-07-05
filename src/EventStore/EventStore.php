@@ -9,16 +9,16 @@ use RayRutjes\DomainFoundation\Domain\Event\Stream\EventStream;
 interface EventStore
 {
     /**
-     * @param Contract    $aggregateType
+     * @param Contract    $aggregateRootType
      * @param EventStream $eventStream
      */
-    public function append(Contract $aggregateType, EventStream $eventStream);
+    public function append(Contract $aggregateRootType, EventStream $eventStream);
 
     /**
-     * @param Contract                $aggregateType
+     * @param Contract                $aggregateRootType
      * @param AggregateRootIdentifier $aggregateRootIdentifier
      *
      * @return EventStream
      */
-    public function read(Contract $aggregateType, AggregateRootIdentifier $aggregateRootIdentifier);
+    public function read(Contract $aggregateRootType, AggregateRootIdentifier $aggregateRootIdentifier);
 }

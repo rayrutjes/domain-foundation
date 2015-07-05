@@ -4,7 +4,8 @@ namespace RayRutjes\DomainFoundation\Command\Gateway;
 
 use RayRutjes\DomainFoundation\Command\Bus\CommandBus;
 use RayRutjes\DomainFoundation\Command\Command;
-use RayRutjes\DomainFoundation\Command\Factory\CommandFactory;
+use RayRutjes\DomainFoundation\Command\GenericCommand;
+use RayRutjes\DomainFoundation\Message\MessageIdentifier;
 use RayRutjes\DomainFoundation\Serializer\Serializable;
 
 class DefaultCommandGateway implements CommandGateway
@@ -15,18 +16,11 @@ class DefaultCommandGateway implements CommandGateway
     private $commandBus;
 
     /**
-     * @var CommandFactory
+     * @param CommandBus $commandBus
      */
-    private $commandFactory;
-
-    /**
-     * @param CommandBus     $commandBus
-     * @param CommandFactory $commandFactory
-     */
-    public function __construct(CommandBus $commandBus, CommandFactory $commandFactory)
+    public function __construct(CommandBus $commandBus)
     {
         $this->commandBus = $commandBus;
-        $this->commandFactory = $commandFactory;
     }
 
     /**
@@ -63,10 +57,10 @@ class DefaultCommandGateway implements CommandGateway
             return $command;
         }
 
-        if (!$command instanceof Serializable) {
-            throw new \InvalidArgumentException('Unsupported data type.');
+        if ($command instanceof Serializable) {
+            return new GenericCommand(MessageIdentifier::generate(), $command);
         }
 
-        return $this->commandFactory->createFromPayload($command);
+        throw new \InvalidArgumentException('Unsupported data type.');
     }
 }

@@ -2,10 +2,7 @@
 
 namespace RayRutjes\DomainFoundation\ValueObject\Identity;
 
-use InvalidArgumentException;
-use RayRutjes\DomainFoundation\ValueObject\ValueObject;
-
-class Uuid implements ValueObject
+final class Uuid
 {
     /**
      * @var \Rhumsaa\Uuid\Uuid
@@ -13,46 +10,60 @@ class Uuid implements ValueObject
     private $uuid;
 
     /**
-     * @return Uuid
-     */
-    final public static function generate()
-    {
-        return new static(\Rhumsaa\Uuid\Uuid::uuid4()->toString());
-    }
-
-    /**
      * @param string
+     *
+     * @throws InvalidArgumentException
      */
-    final public function __construct($uuid)
+    public function __construct($uuid)
     {
-        if (!is_string($uuid)) {
-            throw new InvalidArgumentException('Uuid expected a string.');
-        }
-        if (!\Rhumsaa\Uuid\Uuid::isValid($uuid)) {
-            throw new InvalidArgumentException('Invalid Uuid format.');
-        }
+        $this->assertIsString($uuid);
+        $this->assertIsValidUuid($uuid);
 
         $this->uuid = \Rhumsaa\Uuid\Uuid::fromString($uuid);
     }
 
     /**
-     * @param ValueObject $other
+     * @param string $uuid
+     */
+    private function assertIsString($uuid)
+    {
+        if (!is_string($uuid)) {
+            throw new \InvalidArgumentException('Uuid expected a string.');
+        }
+    }
+
+    /**
+     * @param string $uuid
+     */
+    private function assertIsValidUuid($uuid)
+    {
+        if (!\Rhumsaa\Uuid\Uuid::isValid($uuid)) {
+            throw new \InvalidArgumentException('Invalid Uuid format.');
+        }
+    }
+
+    /**
+     * @return Uuid
+     */
+    public static function generate()
+    {
+        return new self(\Rhumsaa\Uuid\Uuid::uuid4()->toString());
+    }
+
+    /**
+     * @param Uuid $other
      *
      * @return bool
      */
-    final public function sameValueAs(ValueObject $other)
+    public function equals(Uuid $other)
     {
-        if (!$other instanceof self) {
-            return false;
-        }
-
         return $this->toString() === $other->toString();
     }
 
     /**
      * @return string
      */
-    final public function toString()
+    public function toString()
     {
         return $this->uuid->toString();
     }
@@ -60,7 +71,7 @@ class Uuid implements ValueObject
     /**
      * @return string
      */
-    final public function __toString()
+    public function __toString()
     {
         return $this->toString();
     }

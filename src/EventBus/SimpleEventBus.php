@@ -3,7 +3,6 @@
 namespace RayRutjes\DomainFoundation\EventBus;
 
 use RayRutjes\DomainFoundation\Domain\Event\Event;
-use RayRutjes\DomainFoundation\EventBus\Listener\EventListener;
 
 final class SimpleEventBus implements EventBus
 {
@@ -29,30 +28,22 @@ final class SimpleEventBus implements EventBus
 
     /**
      * @param EventListener $listener
-     *
-     * @throws \Exception
      */
     public function subscribe(EventListener $listener)
     {
         $key = $this->getListenerUniqueKey($listener);
-        if (isset($this->listeners[$key])) {
-            throw new \Exception('This listener instance is already subscribed.');
-        }
         $this->listeners[$key] = $listener;
     }
 
     /**
      * @param EventListener $listener
-     *
-     * @throws \Exception
      */
     public function unsubscribe(EventListener $listener)
     {
         $key = $this->getListenerUniqueKey($listener);
-        if (!isset($this->listeners[$key])) {
-            throw new \Exception('This listener instance is not subscribed.');
+        if (isset($this->listeners[$key])) {
+            unset($this->listeners[$key]);
         }
-        unset($this->listeners[$key]);
     }
 
     /**

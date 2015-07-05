@@ -29,11 +29,11 @@ abstract class AbstractQuery implements PdoEventStoreQuery
         $this->pdo = $pdo;
 
         if (!is_string($tableName)) {
-            throw new \LogicException('Table name must be a string.');
+            throw new \InvalidArgumentException('Table name must be a string.');
         }
 
         if (!is_string($sql)) {
-            throw new \LogicException('Sql must be a string.');
+            throw new \InvalidArgumentException('Sql must be a string.');
         }
 
         $this->tableName = $tableName;

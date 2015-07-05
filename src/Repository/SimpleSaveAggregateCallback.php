@@ -3,19 +3,19 @@
 namespace RayRutjes\DomainFoundation\Repository;
 
 use RayRutjes\DomainFoundation\Domain\AggregateRoot\AggregateRoot;
-use RayRutjes\DomainFoundation\UnitOfWork\SaveAggregateCallback\SaveAggregateCallback;
+use RayRutjes\DomainFoundation\UnitOfWork\SaveAggregateCallback;
 
 class SimpleSaveAggregateCallback implements SaveAggregateCallback
 {
     /**
-     * @var AggregateRootRepository
+     * @var Repository
      */
     private $repository;
 
     /**
-     * @param AggregateRootRepository $repository
+     * @param Repository $repository
      */
-    public function __construct(AggregateRootRepository $repository)
+    public function __construct(Repository $repository)
     {
         $this->repository = $repository;
     }

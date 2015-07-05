@@ -2,7 +2,7 @@
 What is this package?
 ---------------------
 
-Php framework which allows you to roll out an event sourced domain layer with ease.
+Php framework focused on providing the tools to roll out a domain driven project.
 
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Build Status](https://img.shields.io/travis/RayRutjes/domain-foundation/master.svg?style=flat-square)](https://travis-ci.org/RayRutjes/domain-foundation)

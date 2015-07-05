@@ -5,14 +5,8 @@ namespace RayRutjes\DomainFoundation\UnitOfWork;
 use RayRutjes\DomainFoundation\Domain\AggregateRoot\AggregateRoot;
 use RayRutjes\DomainFoundation\Domain\Event\Event;
 use RayRutjes\DomainFoundation\EventBus\EventBus;
-use RayRutjes\DomainFoundation\UnitOfWork\AggregateContainer\AggregateContainer;
-use RayRutjes\DomainFoundation\UnitOfWork\AggregateContainer\Factory\AggregateContainerFactory;
-use RayRutjes\DomainFoundation\UnitOfWork\EventRegistrationCallback\Factory\UnitOfWorkEventRegistrationCallbackFactory;
 use RayRutjes\DomainFoundation\UnitOfWork\Listener\UnitOfWorkListener;
 use RayRutjes\DomainFoundation\UnitOfWork\Listener\UnitOfWorkListenerCollection;
-use RayRutjes\DomainFoundation\UnitOfWork\SaveAggregateCallback\SaveAggregateCallback;
-use RayRutjes\DomainFoundation\UnitOfWork\StagingEventContainer\Factory\StagingEventContainerFactory;
-use RayRutjes\DomainFoundation\UnitOfWork\StagingEventContainer\StagingEventContainer;
 
 final class DefaultUnitOfWork implements UnitOfWork
 {
@@ -27,7 +21,7 @@ final class DefaultUnitOfWork implements UnitOfWork
     private $hasStarted = false;
 
     /**
-     * @var AggregateContainer
+     * @var AggregateRootContainer
      */
     private $registeredAggregates;
 
@@ -42,46 +36,25 @@ final class DefaultUnitOfWork implements UnitOfWork
     private $listeners;
 
     /**
-     * @param UnitOfWorkListenerCollection               $listeners
-     * @param StagingEventContainerFactory               $stagingEventContainerFactory
-     * @param AggregateContainerFactory                  $aggregateContainerFactory
-     * @param UnitOfWorkEventRegistrationCallbackFactory $unitOfWorkEventRegistrationCallbackFactory
-     * @param TransactionManager                         $transactionManager
+     * @param TransactionManager $transactionManager
      */
-    public function __construct(
-        UnitOfWorkListenerCollection $listeners,
-        StagingEventContainerFactory $stagingEventContainerFactory,
-        AggregateContainerFactory $aggregateContainerFactory,
-        UnitOfWorkEventRegistrationCallbackFactory $unitOfWorkEventRegistrationCallbackFactory,
-        TransactionManager $transactionManager = null
-    ) {
-        $this->listeners = $listeners;
-        $this->stagingEvents = $stagingEventContainerFactory->create();
-        $this->registeredAggregates = $aggregateContainerFactory->create($this, $unitOfWorkEventRegistrationCallbackFactory);
-        $this->transactionManager = $transactionManager;
-    }
-
-    private function isTransactional()
+    public function __construct(TransactionManager $transactionManager = null)
     {
-        return null !== $this->transactionManager;
+        $this->listeners = new UnitOfWorkListenerCollection();
+        $this->stagingEvents = new StagingEventContainer();
+        $this->registeredAggregates = new AggregateRootContainer($this);
+        $this->transactionManager = $transactionManager;
     }
 
     public function start()
     {
         if ($this->hasStarted()) {
-            throw new \Exception('The unit of work has already been started.');
+            throw new \RuntimeException('The unit of work has already been started.');
         }
 
         $this->hasStarted = true;
 
-        if ($this->isTransactional()) {
-            $this->transactionManager->startTransaction();
-        }
-    }
-
-    public function stop()
-    {
-        $this->hasStarted = false;
+        $this->startTransaction();
     }
 
     /**
@@ -92,24 +65,23 @@ final class DefaultUnitOfWork implements UnitOfWork
         return $this->hasStarted;
     }
 
+    private function isTransactional()
+    {
+        return null !== $this->transactionManager;
+    }
+
     public function commit()
     {
-        if (!$this->hasStarted()) {
-            throw new \Exception('The unit of work has not been started.');
-        }
+        $this->assertHasStarted();
 
         try {
             $this->listeners->onPrepareCommit($this, $this->registeredAggregates->all(), $this->stagingEvents->all());
             $this->registeredAggregates->saveAggregateRoots();
             $this->stagingEvents->publishEvents();
-            if ($this->isTransactional()) {
-                $this->listeners->onPrepareTransactionCommit($this);
-                $this->transactionManager->commitTransaction();
-            }
+            $this->commitTransaction();
             $this->listeners->afterCommit($this);
-        } catch (\Exception $exception) {
+        } catch (\RuntimeException $exception) {
             $this->rollback($exception);
-            throw $exception;
         } finally {
             $this->stop();
             $this->listeners->onCleanup($this);
@@ -133,6 +105,11 @@ final class DefaultUnitOfWork implements UnitOfWork
         }
     }
 
+    public function stop()
+    {
+        $this->hasStarted = false;
+    }
+
     /**
      * @param AggregateRoot         $aggregate
      * @param EventBus              $eventBus
@@ -140,8 +117,11 @@ final class DefaultUnitOfWork implements UnitOfWork
      *
      * @return AggregateRoot
      */
-    public function registerAggregate(AggregateRoot $aggregate, EventBus $eventBus, SaveAggregateCallback $saveAggregateCallback)
-    {
+    public function registerAggregate(
+        AggregateRoot $aggregate,
+        EventBus $eventBus,
+        SaveAggregateCallback $saveAggregateCallback
+    ) {
         return $this->registeredAggregates->add($aggregate, $eventBus, $saveAggregateCallback);
     }
 
@@ -172,5 +152,27 @@ final class DefaultUnitOfWork implements UnitOfWork
     public function registerListener(UnitOfWorkListener $listener)
     {
         $this->listeners->add($listener);
+    }
+
+    private function assertHasStarted()
+    {
+        if (!$this->hasStarted()) {
+            throw new \RuntimeException('The unit of work has not been started.');
+        }
+    }
+
+    private function commitTransaction()
+    {
+        if ($this->isTransactional()) {
+            $this->listeners->onPrepareTransactionCommit($this);
+            $this->transactionManager->commitTransaction();
+        }
+    }
+
+    private function startTransaction()
+    {
+        if ($this->isTransactional()) {
+            $this->transactionManager->startTransaction();
+        }
     }
 }

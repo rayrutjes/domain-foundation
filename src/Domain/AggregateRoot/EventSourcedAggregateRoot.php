@@ -2,13 +2,12 @@
 
 namespace RayRutjes\DomainFoundation\Domain\AggregateRoot;
 
+use RayRutjes\DomainFoundation\Domain\Event\Container\DefaultEventContainer;
 use RayRutjes\DomainFoundation\Domain\Event\Container\EventContainer;
-use RayRutjes\DomainFoundation\Domain\Event\Container\Factory\DefaultEventContainerFactory;
-use RayRutjes\DomainFoundation\Domain\Event\Container\Factory\EventContainerFactory;
 use RayRutjes\DomainFoundation\Domain\Event\Event;
 use RayRutjes\DomainFoundation\Domain\Event\EventRegistrationCallback;
 use RayRutjes\DomainFoundation\Domain\Event\Stream\EventStream;
-use RayRutjes\DomainFoundation\Domain\Event\Stream\Factory\GenericEventStreamFactory;
+use RayRutjes\DomainFoundation\Domain\Event\Stream\GenericEventStream;
 use RayRutjes\DomainFoundation\Serializer\Serializable;
 
 abstract class EventSourcedAggregateRoot implements AggregateRoot
@@ -42,7 +41,7 @@ abstract class EventSourcedAggregateRoot implements AggregateRoot
     final public function identifier()
     {
         if (null === $this->identifier) {
-            throw new \BadMethodCallException('Identifier has not been initialized.');
+            throw new \LogicException('Identifier has not been initialized.');
         }
 
         return $this->identifier;
@@ -67,7 +66,7 @@ abstract class EventSourcedAggregateRoot implements AggregateRoot
     final public function uncommittedChanges()
     {
         if (null === $this->changes) {
-            return $this->eventStreamFactory()->create();
+            return new GenericEventStream();
         }
 
         return $this->changes->eventStream();
@@ -136,8 +135,8 @@ abstract class EventSourcedAggregateRoot implements AggregateRoot
 
     /**
      * Return the event container containing the uncommitted changes.
-     * If there are no pending changes to be committed, a new domain event stream is
-     * resolved from a domain event stream factory.
+     * If there are no pending changes to be committed, a new event container
+     * will be initialized.
      *
      * @return EventContainer
      */
@@ -146,10 +145,7 @@ abstract class EventSourcedAggregateRoot implements AggregateRoot
         if (null === $this->changes) {
             $lastCommittedEventSequenceNumber = $this->lastCommittedEventSequenceNumber();
 
-            $this->changes = $this->eventContainerFactory()->create($this->identifier());
-
-            // Todo: has this method says, initialization should be done at init.
-            $this->changes->initializeSequenceNumber($lastCommittedEventSequenceNumber);
+            $this->changes = new DefaultEventContainer($this->identifier(), $lastCommittedEventSequenceNumber);
         }
 
         return $this->changes;
@@ -180,7 +176,6 @@ abstract class EventSourcedAggregateRoot implements AggregateRoot
     {
         if (null === $this->changes) {
             if (null === $this->lastCommittedEventSequenceNumber) {
-                // todo: this actually an illegal state.
                 return 0;
             }
 
@@ -209,22 +204,6 @@ abstract class EventSourcedAggregateRoot implements AggregateRoot
              return false;
          }
 
-         return $this->identifier()->sameValueAs($aggregateRoot->identifier());
+         return $this->identifier()->equals($aggregateRoot->identifier());
      }
-
-    /**
-     * @return GenericEventStreamFactory
-     */
-    protected function eventStreamFactory()
-    {
-        return new GenericEventStreamFactory();
-    }
-
-    /**
-     * @return EventContainerFactory
-     */
-    protected function eventContainerFactory()
-    {
-        return new DefaultEventContainerFactory($this->eventStreamFactory());
-    }
 }

@@ -34,11 +34,9 @@ class Metadata implements Serializable
      */
     public function get($key)
     {
-        if (false === array_key_exists($key, $this->metadata)) {
-            return;
+        if (array_key_exists($key, $this->metadata)) {
+            return $this->metadata[$key];
         }
-
-        return $this->metadata[$key];
     }
 
     /**

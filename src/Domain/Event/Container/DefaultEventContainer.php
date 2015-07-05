@@ -5,13 +5,13 @@ namespace RayRutjes\DomainFoundation\Domain\Event\Container;
 use RayRutjes\DomainFoundation\Domain\AggregateRoot\AggregateRootIdentifier;
 use RayRutjes\DomainFoundation\Domain\Event\Event;
 use RayRutjes\DomainFoundation\Domain\Event\EventRegistrationCallback;
-use RayRutjes\DomainFoundation\Domain\Event\Factory\EventFactory;
+use RayRutjes\DomainFoundation\Domain\Event\GenericEvent;
 use RayRutjes\DomainFoundation\Domain\Event\Stream\EventStream;
-use RayRutjes\DomainFoundation\Domain\Event\Stream\Factory\EventStreamFactory;
-use RayRutjes\DomainFoundation\Message\Identifier\Factory\MessageIdentifierFactory;
+use RayRutjes\DomainFoundation\Domain\Event\Stream\GenericEventStream;
+use RayRutjes\DomainFoundation\Message\MessageIdentifier;
 use RayRutjes\DomainFoundation\Serializer\Serializable;
 
-class DefaultEventContainer implements \Countable, EventContainer
+final class DefaultEventContainer implements EventContainer
 {
     /**
      * @var array
@@ -34,36 +34,17 @@ class DefaultEventContainer implements \Countable, EventContainer
     private $registrationCallbacks = [];
 
     /**
-     * @var EventFactory
+     * @param AggregateRootIdentifier $aggregateRootIdentifier
+     * @param int                     $lastCommittedSequenceNumber
      */
-    private $eventFactory;
-
-    /**
-     * @var MessageIdentifierFactory
-     */
-    private $messageIdentifierFactory;
-
-    /**
-     * @var EventStreamFactory
-     */
-    private $eventStreamFactory;
-
-    /**
-     * @param AggregateRootIdentifier  $aggregateRootIdentifier
-     * @param EventFactory             $eventFactory
-     * @param MessageIdentifierFactory $messageIdentifierFactory
-     * @param EventStreamFactory       $eventStreamFactory
-     */
-    public function __construct(
-        AggregateRootIdentifier $aggregateRootIdentifier,
-        EventFactory $eventFactory,
-        MessageIdentifierFactory $messageIdentifierFactory,
-        EventStreamFactory $eventStreamFactory
-    ) {
+    public function __construct(AggregateRootIdentifier $aggregateRootIdentifier, $lastCommittedSequenceNumber = 0)
+    {
         $this->aggregateRootIdentifier = $aggregateRootIdentifier;
-        $this->eventFactory = $eventFactory;
-        $this->messageIdentifierFactory = $messageIdentifierFactory;
-        $this->eventStreamFactory = $eventStreamFactory;
+
+        if (!is_int($lastCommittedSequenceNumber) || $lastCommittedSequenceNumber < 0) {
+            throw new \InvalidArgumentException('Sequence number should be a positive integer.');
+        }
+        $this->lastCommittedSequenceNumber = $lastCommittedSequenceNumber;
     }
 
     /**
@@ -71,12 +52,7 @@ class DefaultEventContainer implements \Countable, EventContainer
      */
     public function addEventFromPayload(Serializable $payload)
     {
-        $event = $this->eventFactory->create(
-            $this->aggregateRootIdentifier,
-            $this->nextSequenceNumber(),
-            $this->messageIdentifierFactory->generate(),
-            $payload
-        );
+        $event = new GenericEvent($this->aggregateRootIdentifier, $this->nextSequenceNumber(), MessageIdentifier::generate(), $payload);
 
         $this->addEvent($event);
     }
@@ -89,8 +65,8 @@ class DefaultEventContainer implements \Countable, EventContainer
     public function addEvent(Event $event)
     {
         $expectedSequenceNumber = $this->nextSequenceNumber();
-        if (null !== $expectedSequenceNumber && $expectedSequenceNumber !== $event->sequenceNumber()) {
-            throw new \Exception('Corrupted sequence number.');
+        if ($expectedSequenceNumber !== $event->sequenceNumber()) {
+            throw new \RuntimeException('Corrupted sequence number.');
         }
 
         $this->events[] = $this->applyRegistrationCallbacks($event);
@@ -101,22 +77,7 @@ class DefaultEventContainer implements \Countable, EventContainer
      */
     public function eventStream()
     {
-        return $this->eventStreamFactory->create($this->events);
-    }
-
-    /**
-     * @param int $lastKnownSequenceNumber
-     */
-    public function initializeSequenceNumber($lastKnownSequenceNumber)
-    {
-        if (false === is_int($lastKnownSequenceNumber) || $lastKnownSequenceNumber < 0) {
-            throw new \InvalidArgumentException('Sequence number should be a positive integer.');
-        }
-
-        if (!empty($this->events)) {
-            throw new \LogicException('Can not initialize sequence number if events have already been added.');
-        }
-        $this->lastCommittedSequenceNumber = $lastKnownSequenceNumber;
+        return new GenericEventStream($this->events);
     }
 
     /**
@@ -124,13 +85,11 @@ class DefaultEventContainer implements \Countable, EventContainer
      */
     private function nextSequenceNumber()
     {
-        $currentSequenceNumber = $this->lastSequenceNumber();
-
-        return null === $currentSequenceNumber ? 1 : $currentSequenceNumber + 1;
+        return $this->lastSequenceNumber() + 1;
     }
 
     /**
-     * @return int|null
+     * @return int
      */
     public function lastSequenceNumber()
     {

@@ -4,7 +4,7 @@ namespace RayRutjes\DomainFoundation\Domain\Event\Stream;
 
 use RayRutjes\DomainFoundation\Domain\Event\Event;
 
-class GenericEventStream implements EventStream
+final class GenericEventStream implements EventStream
 {
     /**
      * @var array

@@ -2,7 +2,6 @@
 .idea
 vendor
 bin
-coverage
-coverage.xml
+build
 composer.lock
-composer.phar
+clover.xml

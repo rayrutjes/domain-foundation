@@ -2,36 +2,33 @@
 
 namespace RayRutjes\DomainFoundation\Command;
 
-use RayRutjes\DomainFoundation\Contract\ContractFactory;
+use RayRutjes\DomainFoundation\Contract\Contract;
 use RayRutjes\DomainFoundation\Message\GenericMessage;
-use RayRutjes\DomainFoundation\Message\Identifier\MessageIdentifier;
+use RayRutjes\DomainFoundation\Message\MessageIdentifier;
 use RayRutjes\DomainFoundation\Message\Metadata;
 use RayRutjes\DomainFoundation\Serializer\Serializable;
 
-class GenericCommand extends GenericMessage implements Command
+final class GenericCommand implements Command
 {
+    /**
+     * @var GenericMessage
+     */
+    private $message;
+
     /**
      * @var string
      */
     private $commandName;
 
     /**
-     * @param string            $commandName
      * @param MessageIdentifier $identifier
      * @param Serializable      $payload
      * @param Metadata          $metadata
-     * @param ContractFactory   $contractFactory
      */
-    public function __construct(
-        $commandName,
-        MessageIdentifier $identifier,
-        Serializable $payload,
-        Metadata $metadata = null,
-        ContractFactory $contractFactory = null
-    ) {
-        parent::__construct($identifier, $payload, $metadata, $contractFactory);
-
-        $this->commandName = $commandName;
+    public function __construct(MessageIdentifier $identifier, Serializable $payload, Metadata $metadata = null)
+    {
+        $this->message = new GenericMessage($identifier, $payload, $metadata);
+        $this->commandName = $this->payloadType()->className();
     }
 
     /**
@@ -42,5 +39,45 @@ class GenericCommand extends GenericMessage implements Command
     public function commandName()
     {
         return $this->commandName;
+    }
+
+    /**
+     * @return MessageIdentifier
+     */
+    public function identifier()
+    {
+        return $this->message->identifier();
+    }
+
+    /**
+     * @return Serializable
+     */
+    public function payload()
+    {
+        return $this->message->payload();
+    }
+
+    /**
+     * @return Contract
+     */
+    public function payloadType()
+    {
+        return $this->message->payloadType();
+    }
+
+    /**
+     * @return Metadata
+     */
+    public function metadata()
+    {
+        return $this->message->metadata();
+    }
+
+    /**
+     * @return Contract
+     */
+    public function metadataType()
+    {
+        return $this->message->metadataType();
     }
 }
