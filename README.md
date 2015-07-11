@@ -36,17 +36,4 @@ Be sure to checkout an example of implementation:
 Contributing
 ------------
 
-Feel free to make pull requests, and open issues either to ask questions, suggest implementations and features, or simply to discuss some points.
-
-### Code style
-
-Run the [PHP Coding Standards Fixer](http://cs.sensiolabs.org/) before submitting your code.
-```bash
-$ php-cs-fixer fix
-```
-
-### Run the tests
-
-```
-$ bin/phpunit run
-```
+Please refer to the [contributing](https://github.com/RayRutjes/domain-foundation/blob/master/CONTRIBUTING.md) file.
