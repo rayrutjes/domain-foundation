@@ -26,6 +26,12 @@ Requirements
 
 This package is supported on PHP 5.6/7, but also PHP-HHVM.
 
+Examples
+--------
+
+Be sure to checkout an example of implementation:
+* [Simple command line example](https://github.com/RayRutjes/domain-foundation-example-silly)
+
 
 Contributing
 ------------
