@@ -36,7 +36,7 @@ class StagingEventContainer
     {
         $events = $this->events;
         foreach ($this->eventBuses as $eventBusHash => $eventBus) {
-            $eventBus->publish($events[$eventBusHash]);
+            $eventBus->publish(...$events[$eventBusHash]);
         }
         $this->clear();
     }

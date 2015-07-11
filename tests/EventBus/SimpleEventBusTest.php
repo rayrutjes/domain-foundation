@@ -22,14 +22,6 @@ class SimpleEventBusTest extends \PHPUnit_Framework_TestCase
         $this->eventBus = new SimpleEventBus();
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testEnsuresOnlyEventsCanBePublished()
-    {
-        $this->eventBus->publish([new \stdClass()]);
-    }
-
     public function testDelegatesHandlingOfPublishedEventsToSubscribedListeners()
     {
         $event1 = new EventStub();
@@ -50,7 +42,7 @@ class SimpleEventBusTest extends \PHPUnit_Framework_TestCase
         $this->eventBus->subscribe($listener1);
         $this->eventBus->subscribe($listener2);
 
-        $this->eventBus->publish([$event1, $event2]);
+        $this->eventBus->publish($event1, $event2);
     }
 
     public function testShouldNotDelegatesHandlingOfPublishedEventsToUnsubscribedListeners()
@@ -73,7 +65,7 @@ class SimpleEventBusTest extends \PHPUnit_Framework_TestCase
 
         $this->eventBus->unsubscribe($listener2);
 
-        $this->eventBus->publish([$event1, $event2]);
+        $this->eventBus->publish($event1, $event2);
     }
 }
 

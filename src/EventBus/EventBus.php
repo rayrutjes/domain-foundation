@@ -2,12 +2,14 @@
 
 namespace RayRutjes\DomainFoundation\EventBus;
 
+use RayRutjes\DomainFoundation\Domain\Event\Event;
+
 interface EventBus
 {
     /**
-     * @param array $events
+     * @param Event ...$events
      */
-    public function publish(array $events);
+    public function publish(/* HH_FIXME[4033]: variadic + strict */ ...$events);
 
     /**
      * @param EventListener $listener

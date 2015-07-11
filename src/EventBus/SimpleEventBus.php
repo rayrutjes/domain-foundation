@@ -12,17 +12,12 @@ final class SimpleEventBus implements EventBus
     private $listeners = [];
 
     /**
-     * @param array $events
+     * @param Event ...$events
      */
-    public function publish(array $events)
+    public function publish(/* HH_FIXME[4033]: variadic + strict */ ...$events)
     {
         foreach ($events as $event) {
-            if (!$event instanceof Event) {
-                throw new \InvalidArgumentException('Only [RayRutjes\DomainFoundation\Domain\Event\Event] can be published.');
-            }
-            foreach ($this->listeners as $listener) {
-                $listener->handle($event);
-            }
+            $this->publishEvent($event);
         }
     }
 
@@ -54,5 +49,15 @@ final class SimpleEventBus implements EventBus
     private function getListenerUniqueKey(EventListener $listener)
     {
         return spl_object_hash($listener);
+    }
+
+    /**
+     * @param $event
+     */
+    private function publishEvent($event)
+    {
+        foreach ($this->listeners as $listener) {
+            $listener->handle($event);
+        }
     }
 }
