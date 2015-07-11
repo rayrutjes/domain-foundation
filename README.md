@@ -24,9 +24,7 @@ Until we reach that stage, we will allow BC breaks in minor releases.
 Requirements
 ------------
 
-This package is supported on PHP 5.5/5.6, but also PHP-HHVM.
-
-Php xdebug extension is required to run phpspec tests.
+This package is supported on PHP 5.6/7, but also PHP-HHVM.
 
 
 Contributing
@@ -43,8 +41,6 @@ $ php-cs-fixer fix
 
 ### Run the tests
 
-This library is entirely tested with phpspec, which enforces good architecture.
 ```
-$ vendor/bin/phpspec run
+$ bin/phpunit run
 ```
-**Note that phpspec will need xdebug extension to be enabled in order to produce the code coverage files.**
