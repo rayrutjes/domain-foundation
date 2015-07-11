@@ -56,12 +56,12 @@ class StagingEventContainerTest extends \PHPUnit_Framework_TestCase
         $eventBus1 = $this->eventBusMock();
         $eventBus1->expects($this->once())
             ->method('publish')
-            ->with($this->identicalTo([$event1]));
+            ->with($this->identicalTo($event1));
 
         $eventBus2 = $this->eventBusMock();
         $eventBus2->expects($this->once())
             ->method('publish')
-            ->with($this->identicalTo([$event2, $event3]));
+            ->with($this->identicalTo($event2), $this->identicalTo($event3));
 
         $this->container->add($event1, $eventBus1);
         $this->container->add($event2, $eventBus2);
