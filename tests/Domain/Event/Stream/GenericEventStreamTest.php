@@ -143,4 +143,8 @@ class EventStub implements Event
     public function metadataType()
     {
     }
+
+    public function enrichMetadata(array $data)
+    {
+    }
 }

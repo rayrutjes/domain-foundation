@@ -63,6 +63,18 @@ class GenericCommandTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertInstanceOf('RayRutjes\DomainFoundation\Contract\Contract', $this->command->metadataType());
     }
+
+    public function testCanReturnACommandWithEnrichedMetadata()
+    {
+        $data = ['new_data' => 'new_data_value'];
+        $enrichedCommand = $this->command->enrichMetadata($data);
+
+        $this->assertNotSame($this->command, $enrichedCommand);
+        $this->assertEquals($data, $enrichedCommand->metadata()->all());
+        $this->assertSame($this->command->identifier(), $enrichedCommand->identifier());
+        $this->assertSame($this->command->payload(), $enrichedCommand->payload());
+        $this->assertInstanceOf('RayRutjes\DomainFoundation\Command\GenericCommand', $enrichedCommand);
+    }
 }
 
 class PayloadStub implements Serializable

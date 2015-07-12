@@ -10,6 +10,9 @@ class SimpleCommandBusTest extends \PHPUnit_Framework_TestCase
 
     private $unitOfWork;
 
+    /**
+     * @var SimpleCommandBus
+     */
     private $commandBus;
 
     public function setUp()
@@ -118,6 +121,78 @@ class SimpleCommandBusTest extends \PHPUnit_Framework_TestCase
         $this->commandBus->dispatch($command, $callback);
     }
 
+    public function testCanInterceptCommandBeforeDispatching()
+    {
+        $command = $this->commandMock();
+
+        $this->handlerRegistry->method('findCommandHandlerFor')
+            ->willReturn($this->commandHandlerMock());
+
+        $dispatchInterceptor1 = $this->commandDispatchInterceptorMock();
+        $dispatchInterceptor1->expects($this->once())
+            ->method('handle')
+            ->with($this->identicalTo($command))
+            ->will($this->returnArgument(0));
+
+        $dispatchInterceptor2 = $this->commandDispatchInterceptorMock();
+        $dispatchInterceptor2->expects($this->once())
+            ->method('handle')
+            ->with($this->identicalTo($command))
+            ->will($this->returnArgument(0));
+
+        $this->commandBus->addDispatchInterceptor($dispatchInterceptor1, $dispatchInterceptor2);
+
+        $this->commandBus->dispatch($command);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testEnsuresCorrectTypeOfAddedDispatchInterceptors()
+    {
+        $this->commandBus->addDispatchInterceptor(new \stdClass());
+    }
+
+    public function testCanInterceptCommandBeforeItIsBeingHandled()
+    {
+        $command = $this->commandMock();
+
+        $this->handlerRegistry->method('findCommandHandlerFor')
+            ->willReturn($this->commandHandlerMock());
+
+        $handlerInterceptor1 = $this->commandHandlerInterceptorMock();
+        $handlerInterceptor1->expects($this->once())
+            ->method('handle')
+            ->with(
+                $this->identicalTo($command),
+                $this->identicalTo($this->unitOfWork),
+                $this->isInstanceOf('RayRutjes\DomainFoundation\Command\Interceptor\InterceptorChain')
+            )->will($this->returnCallback(function ($command, $unitOfWork, $interceptorChain) {
+                return $interceptorChain->proceed();
+            }));
+
+        $handlerInterceptor2 = $this->commandHandlerInterceptorMock();
+        $handlerInterceptor2->expects($this->once())
+            ->method('handle')
+            ->with(
+                $this->identicalTo($command),
+                $this->identicalTo($this->unitOfWork),
+                $this->isInstanceOf('RayRutjes\DomainFoundation\Command\Interceptor\InterceptorChain')
+            );
+
+        $this->commandBus->addHandlerInterceptor($handlerInterceptor1, $handlerInterceptor2);
+
+        $this->commandBus->dispatch($command);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testEnsuresCorrectTypeOfAddedHandlerInterceptors()
+    {
+        $this->commandBus->addHandlerInterceptor(new \stdClass());
+    }
+
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject
      */
@@ -156,5 +231,21 @@ class SimpleCommandBusTest extends \PHPUnit_Framework_TestCase
     private function commandCallbackMock()
     {
         return $this->getMock('RayRutjes\DomainFoundation\Command\Callback\CommandCallback');
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    private function commandDispatchInterceptorMock()
+    {
+        return $this->getMock('RayRutjes\DomainFoundation\Command\Interceptor\CommandDispatchInterceptor');
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    private function commandHandlerInterceptorMock()
+    {
+        return $this->getMock('RayRutjes\DomainFoundation\Command\Interceptor\CommandHandlerInterceptor');
     }
 }
