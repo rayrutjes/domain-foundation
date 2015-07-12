@@ -104,4 +104,16 @@ final class GenericEvent implements Event
     {
         return $this->message->metadataType();
     }
+
+    /**
+     * @param array $data
+     *
+     * @return Message
+     */
+    public function enrichMetadata(array $data)
+    {
+        $metadata = $this->message->metadata()->mergeWith($data);
+
+        return new self($this->aggregateRootIdentifier, $this->sequenceNumber, $this->identifier(), $this->payload(), $metadata);
+    }
 }

@@ -31,4 +31,11 @@ interface Message
      * @return Contract
      */
     public function metadataType();
+
+    /**
+     * @param array $data
+     *
+     * @return Message
+     */
+    public function enrichMetadata(array $data);
 }

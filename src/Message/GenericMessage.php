@@ -87,4 +87,16 @@ final class GenericMessage implements Message
     {
         return $this->metadataType;
     }
+
+    /**
+     * @param array $data
+     *
+     * @return Message
+     */
+    public function enrichMetadata(array $data)
+    {
+        $metadata = $this->metadata->mergeWith($data);
+
+        return new self($this->identifier, $this->payload, $metadata);
+    }
 }

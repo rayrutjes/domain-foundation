@@ -80,4 +80,16 @@ final class GenericCommand implements Command
     {
         return $this->message->metadataType();
     }
+
+    /**
+     * @param array $data
+     *
+     * @return Message
+     */
+    public function enrichMetadata(array $data)
+    {
+        $metadata = $this->message->metadata()->mergeWith($data);
+
+        return new self($this->identifier(), $this->payload(), $metadata);
+    }
 }

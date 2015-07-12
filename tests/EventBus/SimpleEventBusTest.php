@@ -6,6 +6,7 @@ use RayRutjes\DomainFoundation\Contract\Contract;
 use RayRutjes\DomainFoundation\Domain\AggregateRoot\AggregateRootIdentifier;
 use RayRutjes\DomainFoundation\Domain\Event\Event;
 use RayRutjes\DomainFoundation\EventBus\SimpleEventBus;
+use RayRutjes\DomainFoundation\Message\Message;
 use RayRutjes\DomainFoundation\Message\MessageIdentifier;
 use RayRutjes\DomainFoundation\Message\Metadata;
 use RayRutjes\DomainFoundation\Serializer\Serializable;
@@ -118,5 +119,15 @@ class EventStub implements Event
      */
     public function metadataType()
     {
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return Message
+     */
+    public function enrichMetadata(array $data)
+    {
+        // TODO: Implement enrichMetadata() method.
     }
 }

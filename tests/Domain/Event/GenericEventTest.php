@@ -88,6 +88,20 @@ class GenericEventTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertInstanceOf('RayRutjes\DomainFoundation\Contract\Contract', $this->event->metadataType());
     }
+
+    public function testCanReturnAnEeentWithEnrichedMetadata()
+    {
+        $data = ['new_data' => 'new_data_value'];
+        $enrichedEvent = $this->event->enrichMetadata($data);
+
+        $this->assertNotSame($this->event, $enrichedEvent);
+        $this->assertEquals($data, $enrichedEvent->metadata()->all());
+        $this->assertSame($this->event->aggregateRootIdentifier(), $enrichedEvent->aggregateRootIdentifier());
+        $this->assertEquals($this->event->sequenceNumber(), $enrichedEvent->sequenceNumber());
+        $this->assertSame($this->event->identifier(), $enrichedEvent->identifier());
+        $this->assertSame($this->event->payload(), $enrichedEvent->payload());
+        $this->assertInstanceOf('RayRutjes\DomainFoundation\Domain\Event\GenericEvent', $enrichedEvent);
+    }
 }
 
 class AggregateRootIdentifierStub implements AggregateRootIdentifier
