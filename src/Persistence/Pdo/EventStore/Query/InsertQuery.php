@@ -13,9 +13,7 @@ INSERT INTO `%s` (
     `event_payload`,
     `event_payload_type`,
     `event_metadata`,
-    `event_metadata_type`,
-    `commit_id`,
-    `committed_at`
+    `event_metadata_type`
 ) VALUES (
     :aggregate_id,
     :aggregate_type,
@@ -24,9 +22,7 @@ INSERT INTO `%s` (
     :event_payload,
     :event_payload_type,
     :event_metadata,
-    :event_metadata_type,
-    :commit_id,
-    :committed_at
+    :event_metadata_type
 );
 MYSQL;
 

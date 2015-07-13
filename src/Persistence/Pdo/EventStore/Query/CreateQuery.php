@@ -15,8 +15,6 @@ CREATE TABLE `%s` (
     `event_payload_type` VARCHAR(100) NOT NULL,
     `event_metadata` TEXT NOT NULL,
     `event_metadata_type` VARCHAR(100) NOT NULL,
-    `commit_id` VARCHAR(100),
-    `committed_at` DATETIME,
     PRIMARY KEY (`checkpoint`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;';
 MYSQL;
