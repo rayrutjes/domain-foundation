@@ -12,6 +12,7 @@ use RayRutjes\DomainFoundation\Persistence\Pdo\EventStore\Query\CreateQuery;
 use RayRutjes\DomainFoundation\Persistence\Pdo\EventStore\Query\InsertQuery;
 use RayRutjes\DomainFoundation\Persistence\Pdo\EventStore\Query\PdoEventStoreQuery;
 use RayRutjes\DomainFoundation\Persistence\Pdo\EventStore\Query\SelectQuery;
+use RayRutjes\DomainFoundation\Repository\ConcurrencyException;
 use RayRutjes\DomainFoundation\Serializer\JsonSerializer;
 
 final class PdoEventStore implements EventStore
@@ -72,20 +73,29 @@ final class PdoEventStore implements EventStore
     {
         $statement = $this->insertQuery->prepare();
 
-        while ($eventStream->hasNext()) {
-            $event = $eventStream->next();
+        try {
+            while ($eventStream->hasNext()) {
+                $event = $eventStream->next();
 
-            $statement->bindValue(':aggregate_id', $event->aggregateRootIdentifier()->toString());
-            $statement->bindValue(':aggregate_type', $aggregateRootType->toString());
-            $statement->bindValue(':aggregate_version', $event->sequenceNumber());
-            $statement->bindValue(':event_id', $event->identifier()->toString());
-            $statement->bindValue(':event_payload', $this->eventSerializer->serializePayload($event));
-            $statement->bindValue(':event_payload_type', $event->payloadType()->toString());
-            $statement->bindValue(':event_metadata', $this->eventSerializer->serializeMetadata($event));
-            $statement->bindValue(':event_metadata_type', $event->metadataType()->toString());
+                $statement->bindValue(':aggregate_id', $event->aggregateRootIdentifier()->toString());
+                $statement->bindValue(':aggregate_type', $aggregateRootType->toString());
+                $statement->bindValue(':aggregate_version', $event->sequenceNumber());
+                $statement->bindValue(':event_id', $event->identifier()->toString());
+                $statement->bindValue(':event_payload', $this->eventSerializer->serializePayload($event));
+                $statement->bindValue(':event_payload_type', $event->payloadType()->toString());
+                $statement->bindValue(':event_metadata', $this->eventSerializer->serializeMetadata($event));
+                $statement->bindValue(':event_metadata_type', $event->metadataType()->toString());
 
-            $statement->execute();
-            $statement->closeCursor();
+                $statement->execute();
+                $statement->closeCursor();
+            }
+        } catch (\PDOException $exception) {
+            // 23000 being the primary key duplicate entry error code.
+            if ($exception->errorInfo[0] === '23000') {
+                throw new ConcurrencyException('Concurrent modification detected.');
+            }
+
+            throw $exception;
         }
     }
 
