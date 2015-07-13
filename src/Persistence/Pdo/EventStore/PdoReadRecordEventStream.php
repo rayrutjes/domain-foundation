@@ -86,13 +86,8 @@ class PdoReadRecordEventStream implements EventStream
         );
 
         $sequenceNumber = (int) $record['aggregate_version'];
-//        $commitIdentifier = new CommitIdentifier($record['commit_id']);
-//        $committedAt = new \DateTime($record['committed_at']);
 
         $eventMessage = new GenericEvent($this->aggregateRootIdentifier, $sequenceNumber, $identifier, $payload, $metadata);
-
-//        $eventMessage->setCommitIdentifier($commitIdentifier);
-//        $eventMessage->setCommittedAt($committedAt);
 
         return $eventMessage;
     }

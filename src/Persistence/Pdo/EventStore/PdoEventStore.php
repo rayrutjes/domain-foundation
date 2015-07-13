@@ -7,7 +7,6 @@ use RayRutjes\DomainFoundation\Domain\AggregateRoot\AggregateRootIdentifier;
 use RayRutjes\DomainFoundation\Domain\Event\Serializer\CompositeEventSerializer;
 use RayRutjes\DomainFoundation\Domain\Event\Serializer\EventSerializer;
 use RayRutjes\DomainFoundation\Domain\Event\Stream\EventStream;
-use RayRutjes\DomainFoundation\EventStore\CommitIdentifier;
 use RayRutjes\DomainFoundation\EventStore\EventStore;
 use RayRutjes\DomainFoundation\Persistence\Pdo\EventStore\Query\CreateQuery;
 use RayRutjes\DomainFoundation\Persistence\Pdo\EventStore\Query\InsertQuery;
@@ -73,9 +72,6 @@ final class PdoEventStore implements EventStore
     {
         $statement = $this->insertQuery->prepare();
 
-        $commitIdentifier = CommitIdentifier::generate()->toString();
-        $committedAt = new \DateTime();
-
         while ($eventStream->hasNext()) {
             $event = $eventStream->next();
 
@@ -87,8 +83,6 @@ final class PdoEventStore implements EventStore
             $statement->bindValue(':event_payload_type', $event->payloadType()->toString());
             $statement->bindValue(':event_metadata', $this->eventSerializer->serializeMetadata($event));
             $statement->bindValue(':event_metadata_type', $event->metadataType()->toString());
-            $statement->bindValue(':commit_id', $commitIdentifier);
-            $statement->bindValue(':committed_at', $committedAt->format('UTC'));
 
             $statement->execute();
             $statement->closeCursor();
