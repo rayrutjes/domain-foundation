@@ -16,7 +16,9 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "RayRutjes\\DomainFoundation\\Test\\": "tests/"
+            "RayRutjes\\DomainFoundation\\Test\\Unit\\": "tests/unit/",
+            "RayRutjes\\DomainFoundation\\Test\\Integration\\": "tests/integration/",
+            "RayRutjes\\DomainFoundation\\Test\\Resources\\": "tests/resources/"
         }
     },
     "config": {
@@ -29,6 +31,7 @@
         "phpmd/phpmd" : "@stable"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.7"
+        "phpunit/phpunit": "^4.7",
+        "phpunit/dbunit": "^1.4"
     }
 }

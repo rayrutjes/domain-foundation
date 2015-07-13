@@ -5,11 +5,21 @@ php:
   - 7
   - hhvm
 
+env:
+    global:
+      - PDO_MYSQL_TEST_DSN="mysql:host=127.0.0.1;dbname=test"
+      - PDO_MYSQL_TEST_USER=travis
+      - PDO_MYSQL_TEST_HOST=127.0.0.1
+      - PDO_MYSQL_TEST_DB_NAME=test
+
 install:
   - travis_retry composer install --no-interaction --prefer-source
 
 script:
   - bin/phpunit --coverage-clover clover.xml
+
+before_script:
+  - mysql -u root -e "CREATE DATABASE IF NOT EXISTS test"
 
 after_script:
   - bash -c 'if [ "$TRAVIS_PHP_VERSION" != "7" ]; then wget https://scrutinizer-ci.com/ocular.phar; fi;'

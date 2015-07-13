@@ -5,8 +5,7 @@ namespace RayRutjes\DomainFoundation\Persistence\Pdo\EventStore\Query;
 final class CreateQuery extends AbstractQuery
 {
     private $sql = <<<MYSQL
-CREATE TABLE `%s` (
-    `checkpoint` BIGINT(20) NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `%s` (
     `aggregate_id` VARCHAR(100) NOT NULL,
     `aggregate_type` VARCHAR(100) NOT NULL,
     `aggregate_version` INT(11) NOT NULL,
@@ -15,7 +14,7 @@ CREATE TABLE `%s` (
     `event_payload_type` VARCHAR(100) NOT NULL,
     `event_metadata` TEXT NOT NULL,
     `event_metadata_type` VARCHAR(100) NOT NULL,
-    PRIMARY KEY (`checkpoint`)
+    PRIMARY KEY (`aggregate_id`, `aggregate_type`, `aggregate_version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;';
 MYSQL;
 
