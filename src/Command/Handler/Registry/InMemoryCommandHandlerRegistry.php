@@ -22,7 +22,7 @@ final class InMemoryCommandHandlerRegistry implements CommandHandlerRegistry
     public function findCommandHandlerFor(Command $command)
     {
         if (!isset($this->subscriptions[$command->commandName()])) {
-            throw new CommandHandlerNotFoundException();
+            throw new CommandHandlerNotFoundException(sprintf('No handler was found for command %s', $command->commandName()));
         }
 
         return $this->subscriptions[$command->commandName()];
