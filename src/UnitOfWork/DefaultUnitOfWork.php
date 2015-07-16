@@ -82,6 +82,7 @@ final class DefaultUnitOfWork implements UnitOfWork
             $this->listeners->afterCommit($this);
         } catch (\RuntimeException $exception) {
             $this->rollback($exception);
+            throw $exception;
         } finally {
             $this->stop();
             $this->listeners->onCleanup($this);
