@@ -195,6 +195,9 @@ class DefaultUnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->unitOfWork->start();
     }
 
+    /**
+     * @expectedException \RuntimeException
+     */
     public function testShouldClearRegisteredAggregatesOnRollback()
     {
         $this->setUpRollbackContext();
@@ -202,6 +205,9 @@ class DefaultUnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->unitOfWork->commit();
     }
 
+    /**
+     * @expectedException \RuntimeException
+     */
     public function testShouldClearStagingEventsOnRollback()
     {
         $this->setUpRollbackContext();
@@ -209,6 +215,9 @@ class DefaultUnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->unitOfWork->commit();
     }
 
+    /**
+     * @expectedException \RuntimeException
+     */
     public function testShouldRollbackTransactionOnRollback()
     {
         $this->setUpRollbackContext();
@@ -216,6 +225,9 @@ class DefaultUnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $this->unitOfWork->commit();
     }
 
+    /**
+     * @expectedException \RuntimeException
+     */
     public function testListenersShouldBeNotifiedOfTheRollback()
     {
         $failureCause = new \RuntimeException();
