@@ -84,6 +84,8 @@ final class DefaultUnitOfWork implements UnitOfWork
             $this->rollback($exception);
             throw $exception;
         } finally {
+            $this->registeredAggregates->clear();
+            $this->stagingEvents->clear();
             $this->stop();
             $this->listeners->onCleanup($this);
         }
