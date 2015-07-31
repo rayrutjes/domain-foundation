@@ -114,7 +114,6 @@ final class DefaultEventContainer implements EventContainer
     {
         $this->lastCommittedSequenceNumber = $this->lastSequenceNumber();
         $this->events = [];
-        $this->registrationCallbacks = [];
     }
 
     /**
