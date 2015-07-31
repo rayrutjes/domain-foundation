@@ -72,6 +72,8 @@ final class SimpleCommandBus implements CommandBus
         }
 
         $this->unitOfWork->commit();
+
+        return $result;
     }
 
     /**

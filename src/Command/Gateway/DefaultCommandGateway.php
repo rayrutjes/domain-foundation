@@ -43,7 +43,7 @@ class DefaultCommandGateway implements CommandGateway
         $commandMessage = $this->wrapCommandWithMessageEnvelope($command);
 
         // Todo: return future callback and pass it along for dispatching.
-        $this->commandBus->dispatch($commandMessage);
+        return $this->commandBus->dispatch($commandMessage);
     }
 
     /**
