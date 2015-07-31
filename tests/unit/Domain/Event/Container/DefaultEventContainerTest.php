@@ -162,10 +162,10 @@ class DefaultEventContainerTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(0, $this->eventContainer);
     }
 
-    public function testShouldClearTheRegistrationCallbacksWhenCommitted()
+    public function testShouldNotClearTheRegistrationCallbacksWhenCommitted()
     {
         $callback = $this->getMockBuilder('RayRutjes\DomainFoundation\Domain\Event\EventRegistrationCallback')->getMock();
-        $callback->expects($this->never())
+        $callback->expects($this->once())
                  ->method('onEventRegistration');
 
         $this->eventContainer->addRegistrationCallback($callback);
